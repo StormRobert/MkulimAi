@@ -3,7 +3,6 @@ import { AlertTriangle, ShieldCheck, AlertCircle } from "lucide-react";
 function RiskScoreCard({ risk }) {
   const { level, score } = risk || { level: "Low", score: 0 };
 
-  // Determine styles based on risk level
   let theme = {
     bg: "bg-emerald-50/40",
     border: "border-emerald-100",

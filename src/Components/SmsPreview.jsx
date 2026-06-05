@@ -10,7 +10,6 @@ function SmsPreview({ risk }) {
       ? "🌦 MkulimAi alert: Moderate rainfall expected. Monitor farm conditions closely and adjust irrigation schedules accordingly."
       : " MkulimAi alert: Stable weather conditions ahead. Normal farm activities can continue. Happy farming!";
 
-  // Format dynamic time
   const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (

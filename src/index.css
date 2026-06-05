@@ -67,7 +67,6 @@ body {
 h1,
 h2 {
   font-family: var(--heading);
-  color: var(--text-h);
   margin: 0;
 }
 
