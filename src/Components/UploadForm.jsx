@@ -3,6 +3,7 @@ import { getWeather } from "../Services/weatherApi";
 import WeatherCard from "./WeatherCard";
 import RiskScoreCard from "./RiskScoreCard";
 import RecommendationCard from "./RecommendationCard";
+import SmsPreview from "./SmsPreview";
 
 import { calculateRisk } from "../Utils/calculateRisk";
 import { generateRecommendations } from "../Utils/generateRecommendations";
@@ -78,6 +79,9 @@ function UploadForm() {
         <RecommendationCard
             recommendations={recommendations}
         />
+        )}
+        {risk && (
+        <SmsPreview risk={risk} />
         )}
     </div>
   );
