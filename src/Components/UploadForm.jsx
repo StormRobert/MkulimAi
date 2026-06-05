@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { getWeather } from "../Services/weatherApi";
+
+import { getWeatherByCity } from "../Services/weatherApi";
 import { analyzeTrees } from "../Services/forestryApi";
+
 import WeatherCard from "./WeatherCard";
 import RiskScoreCard from "./RiskScoreCard";
 import RecommendationCard from "./RecommendationCard";
@@ -13,74 +15,126 @@ import { generateRecommendations } from "../Utils/generateRecommendations";
 function UploadForm() {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
+  const [city, setCity] = useState("Nairobi");
   const [weatherData, setWeatherData] = useState(null);
   const [risk, setRisk] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [analysis, setAnalysis] = useState(null);
-  const [city, setCity] = useState("Nairobi");
+  const [treeError, setTreeError] = useState(null);
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
   };
 
   const handleAnalyze = async () => {
+
   if (!image) {
-    alert("Please upload an image first.");
+    alert(
+      "Please upload an image first."
+    );
+
     return;
   }
 
   try {
+
     setLoading(true);
-
-    console.log("Uploaded Image:", image);
-    const formData = new FormData();
-
-    formData.append("image", image);
-
-    formData.append(
-      "farmerId",
-      "F-001"
-    );
-
-    formData.append(
-      "county",
-      "Nairobi"
-    );
-
-    formData.append(
-      "landAcres",
-      "2.5"
-    );
-
-    formData.append(
-      "notes",
-      "Tea plantation"
-    );
-
-    const treeAnalysis =
-      await analyzeTrees(formData);
+    setTreeError(null);
 
     console.log(
-      "Tree Analysis:",
-      treeAnalysis
+      "FETCHING WEATHER..."
     );
 
-    setAnalysis(treeAnalysis);
+    const weather =
+      await getWeatherByCity(city);
 
-    const weather = await getWeather();
+    console.log(
+      "WEATHER RESPONSE:",
+      weather
+    );
 
     setWeatherData(weather);
 
-    const calculatedRisk = calculateRisk(weather);
+    const calculatedRisk =
+      calculateRisk(weather);
 
     setRisk(calculatedRisk);
 
-    const generatedRecommendations = generateRecommendations(calculatedRisk);
+    const generatedRecommendations =
+      generateRecommendations(
+        calculatedRisk
+      );
 
-    setRecommendations(generatedRecommendations);
+    setRecommendations(
+      generatedRecommendations
+    );
+
+    try {
+
+      console.log(
+        "ANALYZING TREES..."
+      );
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "image",
+        image
+      );
+
+      formData.append(
+        "farmer_id",
+        "F-001"
+      );
+
+      formData.append(
+        "county",
+        city
+      );
+
+      formData.append(
+        "land_acres",
+        "2.5"
+      );
+
+      const treeAnalysis =
+        await analyzeTrees(formData);
+
+      console.log(
+        "TREE ANALYSIS:",
+        treeAnalysis
+      );
+
+      setAnalysis(treeAnalysis);
+
+    } catch (treeError) {
+
+      console.error(
+        "TREE ANALYSIS FAILED:",
+        treeError
+        );
+
+        if (
+        treeError.response?.data?.message
+        ) {
+        setTreeError(
+            treeError.response.data.message
+        );
+        } else {
+        setTreeError(
+            "Tree analysis failed."
+        );
+        }
+
+    }
 
   } catch (error) {
-    console.error(error);
+
+    console.error(
+      "GENERAL ERROR:",
+      error
+    );
 
   } finally {
     setLoading(false);
@@ -89,6 +143,7 @@ function UploadForm() {
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow">
+
       <input
         type="file"
         accept="image/*"
@@ -96,30 +151,77 @@ function UploadForm() {
         className="mb-4 block w-full"
       />
 
+      <select
+        value={city}
+        onChange={(e) =>
+          setCity(e.target.value)
+        }
+        className="mb-4 w-full border rounded-xl p-3"
+      >
+        <option>Nairobi</option>
+        <option>Machakos</option>
+        <option>Meru</option>
+        <option>Kisumu</option>
+        <option>Eldoret</option>
+      </select>
+
       <button
         onClick={handleAnalyze}
         className="bg-black text-white px-6 py-3 rounded-xl"
       >
-        {loading ? "Analyzing..." : "Analyze Farm"}
+        {
+          loading
+            ? "Analyzing..."
+            : "Analyze Farm"
+        }
       </button>
-      {weatherData && (
-        <WeatherCard weather={weatherData} />
-        )}
-        {risk && (
-        <RiskScoreCard risk={risk} />
-        )}
 
-        {recommendations.length > 0 && (
-        <RecommendationCard
-            recommendations={recommendations}
+      {treeError && (
+        <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-2xl mt-6">
+            <h3 className="font-bold mb-2">
+            Tree Analysis Unavailable
+            </h3>
+
+            <p>{treeError}</p>
+
+            <p className="text-sm mt-2">
+            Weather analysis is still available.
+            </p>
+        </div>
+    )}
+
+      {analysis && (
+        <TreeAnalysisCard
+          analysis={analysis}
         />
-        )}
-        {risk && (
-        <SmsPreview risk={risk} />
-        )}
-        {analysis && (
-            <TreeAnalysisCard analysis={analysis} />
-        )}
+      )}
+
+      {weatherData && (
+        <WeatherCard
+          weather={weatherData}
+        />
+      )}
+
+      {risk && (
+        <RiskScoreCard
+          risk={risk}
+        />
+      )}
+
+      {recommendations.length > 0 && (
+        <RecommendationCard
+          recommendations={
+            recommendations
+          }
+        />
+      )}
+
+      {risk && (
+        <SmsPreview
+          risk={risk}
+        />
+      )}
+
     </div>
   );
 }

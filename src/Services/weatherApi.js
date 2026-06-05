@@ -1,9 +1,11 @@
 import api from "./api";
 
-export const getWeather = async () => {
-  const response = await api.get(
-    "/v1/weather?lat=-1.2921&lon=36.8219"
-  );
+export const getWeatherByCity =
+  async (city) => {
 
-  return response.data;
+    const response = await api.get(
+      `/v1/weather-geo?city=${city}&units=metric`
+    );
+
+    return response.data;
 };
