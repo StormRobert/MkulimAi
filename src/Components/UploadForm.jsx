@@ -17,6 +17,7 @@ function UploadForm() {
   const [risk, setRisk] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [analysis, setAnalysis] = useState(null);
+  const [city, setCity] = useState("Nairobi");
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
