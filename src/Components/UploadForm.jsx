@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { getWeather } from "../Services/weatherApi";
+import { analyzeTrees } from "../Services/forestryApi";
 import WeatherCard from "./WeatherCard";
 import RiskScoreCard from "./RiskScoreCard";
 import RecommendationCard from "./RecommendationCard";
 import SmsPreview from "./SmsPreview";
+import TreeAnalysisCard from "./TreeAnalysisCard";
 
 import { calculateRisk } from "../Utils/calculateRisk";
 import { generateRecommendations } from "../Utils/generateRecommendations";
@@ -14,44 +16,75 @@ function UploadForm() {
   const [weatherData, setWeatherData] = useState(null);
   const [risk, setRisk] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
+  const [analysis, setAnalysis] = useState(null);
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]);
   };
 
   const handleAnalyze = async () => {
-    if (!image) {
-      alert("Please upload an image first.");
-      return;
-    }
+  if (!image) {
+    alert("Please upload an image first.");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      console.log("Uploaded Image:", image);
+    console.log("Uploaded Image:", image);
+    const formData = new FormData();
 
-      const weather = await getWeather();
+    formData.append("image", image);
 
-        setWeatherData(weather);
+    formData.append(
+      "farmerId",
+      "F-001"
+    );
 
-        const calculatedRisk =
-        calculateRisk(weather);
+    formData.append(
+      "county",
+      "Nairobi"
+    );
 
-        setRisk(calculatedRisk);
+    formData.append(
+      "landAcres",
+      "2.5"
+    );
 
-        const generatedRecommendations =
-        generateRecommendations(calculatedRisk);
+    formData.append(
+      "notes",
+      "Tea plantation"
+    );
 
-        setRecommendations(
-        generatedRecommendations
-        );
+    const treeAnalysis =
+      await analyzeTrees(formData);
 
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    console.log(
+      "Tree Analysis:",
+      treeAnalysis
+    );
+
+    setAnalysis(treeAnalysis);
+
+    const weather = await getWeather();
+
+    setWeatherData(weather);
+
+    const calculatedRisk = calculateRisk(weather);
+
+    setRisk(calculatedRisk);
+
+    const generatedRecommendations = generateRecommendations(calculatedRisk);
+
+    setRecommendations(generatedRecommendations);
+
+  } catch (error) {
+    console.error(error);
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow">
@@ -82,6 +115,9 @@ function UploadForm() {
         )}
         {risk && (
         <SmsPreview risk={risk} />
+        )}
+        {analysis && (
+            <TreeAnalysisCard analysis={analysis} />
         )}
     </div>
   );
