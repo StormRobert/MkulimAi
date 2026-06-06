@@ -123,19 +123,19 @@ A backend proxy/serverless function is recommended for production deployment.
 
 ## Landing Page
 
-![Landing Page](./screenshots/landingpage.png)
+![Landing Page](public/screenshots/landingpage.png)
 
 ## Image Upload & Analysis
 
-![Upload Analysis](./screenshots/uploadfile.png)
+![Upload Analysis](public/screenshots/uploadfile.png)
 
 ## Analysis Dashboard
 
-![Dashboard1](./screenshots/dashboard1.png)
-![Dashboard2](./screenshots/dashboard2.png)
+![Dashboard1](public/screenshots/dashboard1.png)
+
+![Dashboard2](public/screenshots/dashboard2.png)
 
 ---
-
 # 📁 Project Structure
 
 ```bash
