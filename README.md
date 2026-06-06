@@ -52,8 +52,15 @@ MkulimAI helps farmers analyze farm conditions using:
 
 Clone the repository:
 
+## Clone via HTTPS
+
 ```bash
 git clone https://github.com/YOUR_USERNAME/mkulimAi.git
+```
+
+## Clone via SSH
+
+```bash
 git clone git@github.com:YOUR_USERNAME/MkulimAi.git
 ```
 
