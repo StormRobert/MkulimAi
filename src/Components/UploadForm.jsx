@@ -10,6 +10,8 @@ import ImageDropZone from "./Inputs/ImageDropZone";
 import CitySelect from "./Inputs/CitySelect";
 import AnalyzeButton from "./Inputs/AnalyzeButton";
 import UploadHint from "./Inputs/UploadHint";
+import CorsErrorModal from "./Modals/CorsErrorModal";
+import UploadErrorModal from "./Modals/UploadErrorModal";
 
 function UploadForm() {
   const navigate = useNavigate();
@@ -20,6 +22,8 @@ function UploadForm() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [city, setCity] = useState("Nairobi");
   const [isDragActive, setIsDragActive] = useState(false);
+  const [corsError, setCorsError] = useState(false);
+  const [uploadError, setUploadError] = useState(false);
 
   const handleFileChange = (file) => {
     if (file && file.type.startsWith("image/")) {
@@ -60,12 +64,12 @@ function UploadForm() {
 
   const handleAnalyze = async () => {
     if (!image) {
-      alert("Please upload a farm image first.");
       return;
     }
 
     try {
       setLoading(true);
+      setCorsError(false);
 
       const weather = await getWeatherByCity(city);
       const calculatedRisk = calculateRisk(weather);
@@ -99,13 +103,33 @@ function UploadForm() {
       });
     } catch (error) {
       console.error("GENERAL ERROR:", error);
-      alert("Unable to fetch weather details. Please try again.");
+        if (error.message === "Network Error") {
+        setCorsError(true);
+        } else {
+        alert(
+            "Unable to fetch weather details."
+        );
+        }
     } finally {
       setLoading(false);
     }
   };
 
   return (
+  <>
+    <UploadErrorModal
+        open={uploadError}
+        onClose={() =>
+        setUploadError(false)
+        }
+        />
+    <CorsErrorModal
+      open={corsError}
+      onClose={() =>
+      setCorsError(false)
+      }
+    />
+
     <div className="space-y-6 text-left">
       <ImageDropZone
         fileInputRef={fileInputRef}
@@ -120,7 +144,9 @@ function UploadForm() {
 
       <CitySelect
         value={city}
-        onChange={(e) => setCity(e.target.value)}
+        onChange={(e) =>
+          setCity(e.target.value)
+        }
         disabled={loading}
       />
 
@@ -132,7 +158,8 @@ function UploadForm() {
 
       {!image && <UploadHint />}
     </div>
-  );
+  </>
+);
 }
 
 export default UploadForm;
